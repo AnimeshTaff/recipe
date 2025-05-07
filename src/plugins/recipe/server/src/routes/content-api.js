@@ -14,7 +14,7 @@ export default [
   {
     method: 'POST',
     path: '/recipes',
-    handler: 'recipe.createRecipeWithIngredient',
+    handler: 'recipe.create',
     config: {
       policies: [],
       auth: false,
@@ -25,7 +25,7 @@ export default [
   {
     method: 'GET',
     path: '/recipes',
-    handler: 'recipe.findAllWithIngredient',
+    handler: 'recipe.findAll',
     config: {
       policies: [],
       auth: false,
@@ -36,7 +36,7 @@ export default [
   {
     method: 'GET',
     path: '/recipes/:id/details',
-    handler: 'recipe.findOneWithIngredient',
+    handler: 'recipe.findOne',
     config: {
       policies: [],
       auth: false,
@@ -47,7 +47,7 @@ export default [
   {
     method: 'PUT',
     path: '/recipes/:id',
-    handler: 'recipe.updateRecipeWithIngredient',
+    handler: 'recipe.update',
     config: {
       policies: [],
       auth: false,
@@ -58,7 +58,7 @@ export default [
   {
     method: 'DELETE',
     path: '/recipes/:id',
-    handler: 'recipe.deleteRecipeWithIngredient',
+    handler: 'recipe.delete',
     config: {
       policies: [],
       auth: false,
