@@ -20,12 +20,16 @@ module.exports = {
 
       const recipe = await strapi.entityService.create('api::recipe.recipe', {
         data,
-        populate: { ingredient: { fields: ['details'] } },
+        populate: {
+          ingredient: { fields: ['details'] },
+          recipeimage: true,
+        },
       });
 
       ctx.body = {
         ...recipe,
         ingredient: recipe.ingredient?.details || null,
+        recipeimage: recipe.recipeimage || null,
       };
     } catch (err) {
       console.error('Create error:', err);
@@ -38,12 +42,16 @@ module.exports = {
     try {
       const recipes = await strapi.entityService.findMany('api::recipe.recipe', {
         fields: ['id', 'documentId', 'name', 'description'],
-        populate: { ingredient: { fields: ['details'] } },
+        populate: {
+          ingredient: { fields: ['details'] },
+          recipeimage: true,
+        },
       });
 
       ctx.body = recipes.map(r => ({
         ...r,
         ingredient: r.ingredient?.details || null,
+        recipeimage: r.recipeimage || null,
       }));
     } catch (err) {
       console.error('Find all error:', err);
@@ -58,7 +66,10 @@ module.exports = {
 
       const recipe = await strapi.entityService.findOne('api::recipe.recipe', id, {
         fields: ['id', 'documentId', 'name', 'description'],
-        populate: { ingredient: { fields: ['details'] } },
+        populate: {
+          ingredient: { fields: ['details'] },
+          recipeimage: true,
+        },
       });
 
       if (!recipe) return ctx.throw(404, 'Not found');
@@ -66,6 +77,7 @@ module.exports = {
       ctx.body = {
         ...recipe,
         ingredient: recipe.ingredient?.details || null,
+        recipeimage: recipe.recipeimage || null,
       };
     } catch (err) {
       console.error('Find one error:', err);
@@ -81,7 +93,10 @@ module.exports = {
 
       const updated = await strapi.entityService.update('api::recipe.recipe', id, {
         data: { name, description, recipeimage },
-        populate: { ingredient: { fields: ['details'] } },
+        populate: {
+          ingredient: { fields: ['details'] },
+          recipeimage: true,
+        },
       });
 
       if (updated.ingredient && ingredient) {
@@ -92,12 +107,16 @@ module.exports = {
 
       const final = await strapi.entityService.findOne('api::recipe.recipe', id, {
         fields: ['id', 'documentId', 'name', 'description'],
-        populate: { ingredient: { fields: ['details'] } },
+        populate: {
+          ingredient: { fields: ['details'] },
+          recipeimage: true,
+        },
       });
 
       ctx.body = {
         ...final,
         ingredient: final.ingredient?.details || null,
+        recipeimage: final.recipeimage || null,
       };
     } catch (err) {
       console.error('Update error:', err);
