@@ -372,7 +372,6 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
 export interface ApiIngredientIngredient extends Struct.CollectionTypeSchema {
   collectionName: 'ingredients';
   info: {
-    description: '';
     displayName: 'Ingredient';
     pluralName: 'ingredients';
     singularName: 'ingredient';
@@ -384,7 +383,7 @@ export interface ApiIngredientIngredient extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    details: Schema.Attribute.String;
+    details: Schema.Attribute.Text;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -392,7 +391,7 @@ export interface ApiIngredientIngredient extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    recipes: Schema.Attribute.Relation<'manyToMany', 'api::recipe.recipe'>;
+    recipe: Schema.Attribute.Relation<'oneToOne', 'api::recipe.recipe'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -415,8 +414,8 @@ export interface ApiRecipeRecipe extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.Text;
-    ingredients: Schema.Attribute.Relation<
-      'manyToMany',
+    ingredient: Schema.Attribute.Relation<
+      'oneToOne',
       'api::ingredient.ingredient'
     >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
