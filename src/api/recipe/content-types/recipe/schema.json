@@ -25,11 +25,11 @@
         "images"
       ]
     },
-    "ingredient": {
+    "ingredients": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "manyToMany",
       "target": "api::ingredient.ingredient",
-      "inversedBy": "recipe"
+      "inversedBy": "recipes"
     }
   }
 }

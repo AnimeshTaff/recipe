@@ -4,84 +4,99 @@ module.exports = {
   // CREATE
   async create(ctx) {
     try {
-      const { name, description, ingredient, recipeimage } = ctx.request.body;
-
-      const newIngredient = await strapi.entityService.create('api::ingredient.ingredient', {
-        data: { ...ingredient },
-      });
-
+      const { name, description, recipeimage, ingredients } = ctx.request.body;
+  
+      const ingredientIds = [];
+  
+      if (Array.isArray(ingredients)) {
+        for (const ing of ingredients) {
+          let existing = await strapi.entityService.findMany('api::ingredient.ingredient', {
+            filters: { details: ing.details },
+            limit: 1,
+          });
+  
+          if (existing.length > 0) {
+            ingredientIds.push(existing[0].id);
+          } else {
+            const created = await strapi.entityService.create('api::ingredient.ingredient', {
+              data: { details: ing.details },
+            });
+            ingredientIds.push(created.id);
+          }
+        }
+      }
+  
       const data = {
         name,
         description,
-        ingredient: newIngredient.id,
+        recipeimage,
+        ingredients: ingredientIds,
       };
-
-      if (recipeimage) data.recipeimage = recipeimage;
-
+  
       const recipe = await strapi.entityService.create('api::recipe.recipe', {
         data,
         populate: {
-          ingredient: { fields: ['details'] },
+          ingredients: { fields: ['id', 'details'] },
           recipeimage: true,
         },
       });
-
-      ctx.body = {
-        ...recipe,
-        ingredient: recipe.ingredient?.details || null,
-        recipeimage: recipe.recipeimage || null,
-      };
+  
+      ctx.body = recipe;
     } catch (err) {
       console.error('Create error:', err);
-      ctx.throw(500, 'Create failed');
+      ctx.status = 500;
+      ctx.body = {
+        error: 'Create failed',
+        details: err.message,
+      };
     }
   },
-
-  // READ all
+  
+  // READ ALL
   async findAll(ctx) {
     try {
       const recipes = await strapi.entityService.findMany('api::recipe.recipe', {
-        fields: ['id', 'documentId', 'name', 'description'],
+        fields: ['id', 'name', 'description'],
         populate: {
-          ingredient: { fields: ['details'] },
+          ingredients: { fields: ['id', 'details'] },
           recipeimage: true,
         },
       });
 
-      ctx.body = recipes.map(r => ({
-        ...r,
-        ingredient: r.ingredient?.details || null,
-        recipeimage: r.recipeimage || null,
-      }));
+      ctx.body = recipes;
     } catch (err) {
       console.error('Find all error:', err);
-      ctx.throw(500, 'Fetch failed');
+      ctx.status = 500;
+      ctx.body = {
+        error: 'Fetch failed',
+        details: err.message,
+      };
     }
   },
 
-  // READ one
+  // READ ONE
   async findOne(ctx) {
     try {
       const { id } = ctx.params;
 
       const recipe = await strapi.entityService.findOne('api::recipe.recipe', id, {
-        fields: ['id', 'documentId', 'name', 'description'],
+        fields: ['id', 'name', 'description'],
         populate: {
-          ingredient: { fields: ['details'] },
+          ingredients: { fields: ['id', 'details'] },
           recipeimage: true,
         },
       });
 
       if (!recipe) return ctx.throw(404, 'Not found');
 
-      ctx.body = {
-        ...recipe,
-        ingredient: recipe.ingredient?.details || null,
-        recipeimage: recipe.recipeimage || null,
-      };
+      ctx.body = recipe;
     } catch (err) {
       console.error('Find one error:', err);
-      ctx.throw(500, 'Fetch failed');
+      ctx.body = {
+        error: 'Fetch failed',
+        details: err.message,
+      };
+      ctx.status = 500;
     }
   },
 
@@ -89,40 +104,56 @@ module.exports = {
   async update(ctx) {
     try {
       const { id } = ctx.params;
-      const { name, description, recipeimage, ingredient } = ctx.request.body;
-
-      const updated = await strapi.entityService.update('api::recipe.recipe', id, {
-        data: { name, description, recipeimage },
-        populate: {
-          ingredient: { fields: ['details'] },
-          recipeimage: true,
-        },
-      });
-
-      if (updated.ingredient && ingredient) {
-        await strapi.entityService.update('api::ingredient.ingredient', updated.ingredient.id, {
-          data: { ...ingredient },
-        });
-      }
-
-      const final = await strapi.entityService.findOne('api::recipe.recipe', id, {
-        fields: ['id', 'documentId', 'name', 'description'],
-        populate: {
-          ingredient: { fields: ['details'] },
-          recipeimage: true,
-        },
-      });
-
-      ctx.body = {
-        ...final,
-        ingredient: final.ingredient?.details || null,
-        recipeimage: final.recipeimage || null,
+      const { name, description, recipeimage, ingredients } = ctx.request.body;
+  
+      const data = {
+        name,
+        description,
+        recipeimage,
       };
+  
+      if (Array.isArray(ingredients)) {
+        const ingredientIds = [];
+  
+        for (const ing of ingredients) {
+          const existing = await strapi.entityService.findMany('api::ingredient.ingredient', {
+            filters: { details: ing.details },
+            limit: 1,
+          });
+  
+          if (existing.length > 0) {
+            ingredientIds.push(existing[0].id);
+          } else {
+            const created = await strapi.entityService.create('api::ingredient.ingredient', {
+              data: { details: ing.details },
+            });
+            ingredientIds.push(created.id);
+          }
+        }
+  
+        // Set the new ingredients
+        data.ingredients = ingredientIds;
+      }
+  
+      const updated = await strapi.entityService.update('api::recipe.recipe', id, {
+        data,
+        populate: {
+          ingredients: { fields: ['id', 'details'] },
+          recipeimage: true,
+        },
+      });
+  
+      ctx.body = updated;
     } catch (err) {
       console.error('Update error:', err);
-      ctx.throw(500, 'Update failed');
+      ctx.status = 500;
+      ctx.body = {
+        error: 'Update failed',
+        details: err.message,
+      };
     }
   },
+  
 
   // DELETE
   async delete(ctx) {
@@ -130,22 +161,23 @@ module.exports = {
       const { id } = ctx.params;
 
       const recipe = await strapi.entityService.findOne('api::recipe.recipe', id, {
-        populate: ['ingredient'],
+        populate: ['ingredients'],
       });
 
       if (!recipe) return ctx.throw(404, 'Not found');
 
-      const ingredientId = recipe.ingredient?.id;
-
       await strapi.entityService.delete('api::recipe.recipe', id);
-      if (ingredientId) {
-        await strapi.entityService.delete('api::ingredient.ingredient', ingredientId);
-      }
 
       ctx.body = { message: 'Deleted successfully' };
     } catch (err) {
       console.error('Delete error:', err);
-      ctx.throw(500, 'Delete failed');
+      ctx.body = {
+        error: 'Delete failed',
+        details: err.message,
+      };
+      ctx.status = 500;
     }
   },
 };
+
+

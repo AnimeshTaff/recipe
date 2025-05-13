@@ -4,20 +4,21 @@
   "info": {
     "singularName": "ingredient",
     "pluralName": "ingredients",
-    "displayName": "Ingredient"
+    "displayName": "Ingredient",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
   },
   "attributes": {
     "details": {
-      "type": "text"
+      "type": "string"
     },
-    "recipe": {
+    "recipes": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "manyToMany",
       "target": "api::recipe.recipe",
-      "mappedBy": "ingredient"
+      "mappedBy": "ingredients"
     }
   }
 }
