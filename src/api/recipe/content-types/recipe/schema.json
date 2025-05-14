@@ -29,7 +29,7 @@
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::ingredient.ingredient",
-      "inversedBy": "recipes"
+      "mappedBy": "recipes"
     }
   }
 }
