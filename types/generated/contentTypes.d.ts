@@ -415,6 +415,7 @@ export interface ApiRecipeRecipe extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.Text;
+    discountedPrice: Schema.Attribute.Decimal;
     ingredients: Schema.Attribute.Relation<
       'manyToMany',
       'api::ingredient.ingredient'
@@ -426,6 +427,7 @@ export interface ApiRecipeRecipe extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     name: Schema.Attribute.String;
+    price: Schema.Attribute.Decimal;
     publishedAt: Schema.Attribute.DateTime;
     recipeimage: Schema.Attribute.Media<'images'>;
     updatedAt: Schema.Attribute.DateTime;

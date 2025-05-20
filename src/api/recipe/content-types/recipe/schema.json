@@ -30,6 +30,12 @@
       "relation": "manyToMany",
       "target": "api::ingredient.ingredient",
       "mappedBy": "recipes"
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "discountedPrice": {
+      "type": "decimal"
     }
   }
 }
